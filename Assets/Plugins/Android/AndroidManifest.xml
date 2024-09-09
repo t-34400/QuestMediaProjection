@@ -18,7 +18,7 @@
     <service
       android:name="com.t34400.mediaprojectionlib.core.MediaProjectionService"
       android:foregroundServiceType="mediaProjection"
-      ndroid:stopWithTask="true" />
+      android:stopWithTask="true" />
   </application>
   <uses-feature android:name="android.hardware.vr.headtracking" android:version="1" android:required="true" />
 </manifest>
