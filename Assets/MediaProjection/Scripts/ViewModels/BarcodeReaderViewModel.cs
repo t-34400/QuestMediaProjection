@@ -54,6 +54,12 @@ namespace MediaProjection.ViewModels
             }
         }
 
+        private void OnDestroy()
+        {
+            barcodeReaderService?.Dispose();
+            barcodeReaderService = null;
+        }
+
         private static Models.BarcodeFormat[] ParseFormatFlags(Models.BarcodeFormat formats)
         {
              return Enum.GetValues(typeof(Models.BarcodeFormat))
