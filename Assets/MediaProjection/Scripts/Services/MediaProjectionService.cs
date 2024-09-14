@@ -8,18 +8,9 @@ namespace MediaProjection.Services
     {
         private readonly AndroidJavaObject mediaProjectionManager;
 
-        public MediaProjectionService()
+        public MediaProjectionService(AndroidJavaObject mediaProjectionManager)
         {
-            using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
-            {
-                using (AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
-                {
-                    mediaProjectionManager = 
-                        new AndroidJavaObject(
-                            "com.t34400.mediaprojectionlib.core.MediaProjectionManager", 
-                            activity);
-                }                
-            }
+            this.mediaProjectionManager = mediaProjectionManager;
         }
 
         public bool TryGetScreenCapture(out Texture2D texture)

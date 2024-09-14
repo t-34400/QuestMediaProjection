@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace MediaProjection.Services
 {
-    interface IMediaProjectionService : IDisposable
+    interface IMediaProjectionService
     {
         bool TryGetScreenCapture(out Texture2D texture);
     }
