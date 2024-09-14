@@ -2,14 +2,14 @@
 
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.UIElements;
 
 namespace MediaProjection.ViewModels
 {
     class MediaProjectionViewModel : MonoBehaviour
     {
-        [SerializeField] private UnityEvent<Texture2D> screenUpdated = default!;
+        [SerializeField] private Services.ServiceContainer serviceContainer = default!;
         [SerializeField] private float minUpdateInterval = 0.05f;
+        [SerializeField] private UnityEvent<Texture2D> screenUpdated = default!;
 
         private Services.IMediaProjectionService? mediaProjectionService = null;
 
@@ -30,9 +30,11 @@ namespace MediaProjection.ViewModels
             }
         }
 
+        public Services.ServiceContainer ServiceContainer => serviceContainer;
+
         private void Awake()
         {
-            mediaProjectionService = Services.ServiceContainer.MediaProjectionService;
+            mediaProjectionService = serviceContainer.MediaProjectionService;
         }
 
         private void Update()
@@ -48,12 +50,6 @@ namespace MediaProjection.ViewModels
                     CurrentTexture = texture;
                 }
             }
-        }
-
-        private void OnDestroy()
-        {
-            mediaProjectionService?.Dispose();
-            mediaProjectionService = null;
         }
     }
 }
