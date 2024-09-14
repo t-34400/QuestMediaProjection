@@ -9,7 +9,10 @@ namespace MediaProjection.ViewModels
     {
         [SerializeField] private Services.ServiceContainer serviceContainer = default!;
         [SerializeField] private float minUpdateInterval = 0.05f;
-        [SerializeField] private UnityEvent<Texture2D> screenUpdated = default!;
+        [Header("Screen Texture")]
+        [Tooltip("Retrieves the texture captured from the screen. Uncheck this to disable texture processing if it is not needed, which will help improve performance.")]
+        [SerializeField] private bool textureRequired = false;
+        [SerializeField] private UnityEvent<Texture2D> textureUpdated = default!;
 
         private Services.IMediaProjectionService? mediaProjectionService = null;
 
@@ -26,7 +29,7 @@ namespace MediaProjection.ViewModels
             set
             {
                 currentTexture = value;
-                screenUpdated.Invoke(currentTexture);
+                textureUpdated.Invoke(currentTexture);
             }
         }
 
@@ -45,7 +48,7 @@ namespace MediaProjection.ViewModels
                 latestUpdateTime = currentTime;
                 
                 if (mediaProjectionService != null
-                    && mediaProjectionService.TryGetScreenCapture(out var texture))
+                    && mediaProjectionService.TryGetScreenCapture(textureRequired, out var texture))
                 {
                     CurrentTexture = texture;
                 }
