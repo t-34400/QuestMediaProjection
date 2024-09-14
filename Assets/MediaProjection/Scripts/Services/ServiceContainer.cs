@@ -8,6 +8,7 @@ namespace MediaProjection.Services
     class ServiceContainer : MonoBehaviour
     {
         private AndroidJavaObject? mediaProjectionManager;
+        private AndroidJavaObject? bitmapSaver;
 
         private MediaProjectionService? mediaProjectionService = null;
 
@@ -51,10 +52,33 @@ namespace MediaProjection.Services
             return new BarcodeReaderService(MediaProjectionManager, possibleFormats, cropRequired, cropRange, tryHarder);
         }
 
+        public void RequestImageSaver(string filenamePrefix)
+        {
+            if (bitmapSaver != null)
+            {
+                return;
+            }
+
+            using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+            {
+                using (AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
+                {
+                    bitmapSaver = new AndroidJavaObject(
+                            "com.t34400.mediaprojectionlib.io.BitmapSaver", 
+                            activity,
+                            MediaProjectionManager,
+                            filenamePrefix);
+                }
+            }
+        }
+
         private void OnDestroy()
         {
             mediaProjectionService?.Dispose();
             mediaProjectionService = null;
+
+            bitmapSaver?.Dispose();
+            bitmapSaver = null;
         }
     }
 }
