@@ -19,7 +19,7 @@
 1. **Create a Meta Quest Project**: Refer to the official tutorial at [Oculus Developer Documentation](https://developer.oculus.com/documentation/unity/unity-tutorial-hello-vr/) to set up a project for Meta Quest.
 
 2. **Download and Import UnityPackage**:
-   - Download the UnityPackage from the [GitHub Releases](https://github.com/yourusername/QuestMediaProjection/releases) page.
+   - Download the UnityPackage from the [GitHub Releases](https://github.com/t-34400/QuestMediaProjection/releases) page.
    - Import the `.unitypackage` into your Unity project.
 
 3. **Configure Project Settings**:
@@ -104,24 +104,27 @@
 ### Reading Barcodes
 
 1. Add the `BarcodeReaderViewModel` component to a suitable `GameObject` and attach the `MediaProjectionViewModel` component created in the basic setup to its `MediaProjectionViewModel` field.
-2. Select the barcodes to be read from the `PossibleFormats` list (multiple formats can be selected). The supported barcode formats are:
-   - `AZTEC`
-   - `CODABAR`
-   - `CODE_128`
-   - `CODE_39`
-   - `CODE_93`
-   - `DATA_MATRIX`
-   - `EAN_13`
-   - `EAN_8`
-   - `ITF`
-   - `MAXICODE`
-   - `PDF_417`
-   - `QR_CODE`
-   - `RSS_14`
-   - `RSS_EXPANDED`
-   - `UPC_A`
-   - `UPC_E`
-   - `UPC_EAN_EXTENSION`
+2. Select the barcodes to be read from the `PossibleFormats` list (multiple formats can be selected). 
+    <details><summary>Supported barcode formats:</summary>
+
+    - `AZTEC`
+    - `CODABAR`
+    - `CODE_128`
+    - `CODE_39`
+    - `CODE_93`
+    - `DATA_MATRIX`
+    - `EAN_13`
+    - `EAN_8`
+    - `ITF`
+    - `MAXICODE`
+    - `PDF_417`
+    - `QR_CODE`
+    - `RSS_14`
+    - `RSS_EXPANDED`
+    - `UPC_A`
+    - `UPC_E`
+    - `UPC_EAN_EXTENSION`
+    </details>
 3. To crop the input image before barcode reading, check `Crop Required` and specify the `Crop Rect`.
 4. For higher accuracy, check `Try Harder`.
 5. To handle barcode reading results, create a component and register it with the `Barcode Read` event:
@@ -158,6 +161,9 @@
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
+
+## AAR Source Code
+[MediaProjectionLib](https://github.com/t-34400/MediaProjectionLib)
 
 ## Acknowledgements
 
