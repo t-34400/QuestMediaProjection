@@ -19,7 +19,7 @@
 1. **Create a Meta Quest Project**: Refer to the official tutorial at [Oculus Developer Documentation](https://developer.oculus.com/documentation/unity/unity-tutorial-hello-vr/) to set up a project for Meta Quest.
 
 2. **Download and Import UnityPackage**:
-   - Download the UnityPackage from the [GitHub Releases](https://github.com/yourusername/QuestMediaProjection/releases) page.
+   - Download the UnityPackage from the [GitHub Releases](https://github.com/t-34400/QuestMediaProjection/releases) page.
    - Import the `.unitypackage` into your Unity project.
 
 3. **Configure Project Settings**:
