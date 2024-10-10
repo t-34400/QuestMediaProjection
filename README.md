@@ -61,13 +61,16 @@
 
 6. **Update mainTemplate.gradle**:
    - Open `Assets/Plugins/Android/mainTemplate.gradle`.
-   - Add the following dependencies in the `dependencies` scope:
+   - Add the appropriate dependencies in the `dependencies` scope:
      ```groovy
      dependencies {
         ...
         implementation 'androidx.appcompat:appcompat:1.6.1'
         implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.2'
-        implementation 'com.google.zxing:core:3.5.3'
+
+        implementation 'com.google.zxing:core:3.5.3'  // Use this if you are using ZXing for barcode scanning
+
+        implementation 'com.google.mlkit:barcode-scanning:17.3.0'  // Use this if you are using Google ML Kit for barcode scanning
      }
      ```
 
@@ -101,7 +104,7 @@
      ```
    - If you want to apply the texture to a material, attach the material and select `mainTexture` from the dropdown.
 
-### Reading Barcodes
+### Reading Barcodes with Zxing
 
 1. Add the `BarcodeReaderViewModel` component to a suitable `GameObject` and attach the `MediaProjectionViewModel` component created in the basic setup to its `MediaProjectionViewModel` field.
 2. Select the barcodes to be read from the `PossibleFormats` list (multiple formats can be selected). 
@@ -127,26 +130,55 @@
     </details>
 3. To crop the input image before barcode reading, check `Crop Required` and specify the `Crop Rect`.
 4. For higher accuracy, check `Try Harder`.
-5. To handle barcode reading results, create a component and register it with the `Barcode Read` event:
+5. To handle barcode reading results, create a component and register it with the `Barcode Read` event. You need to define a public method in your component that takes an array of `BarcodeReadingResult[]` as an argument:
    ```csharp
    using UnityEngine;
    using MediaProjection.Models;
 
    class ResultHandler : MonoBehaviour
    {
-       public void ProcessResult(BarcodeReadingResult result)
+       public void ProcessResult(BarcodeReadingResult[] results)
        {
-           string text = result.Text; // raw text encoded by the barcode
-           string format = result.Format; // format of the barcode that was decoded
-           byte[] rawBytes = result.RawBytes; // raw bytes encoded by the barcode
-           Vector2[] resultPoints = result.ResultPoints; // points related to the barcode in the image
-           long timestamp = result.Timestamp;
-
-           // ...
+           foreach (var result in results)
+           {
+              　string text = result.Text; // raw text encoded by the barcode
+              　string format = result.Format; // format of the barcode that was decoded
+              　byte[] rawBytes = result.RawBytes; // raw bytes encoded by the barcode
+              　Vector2[] resultPoints = result.ResultPoints; // points related to the barcode in the image
+              　long timestamp = result.Timestamp;
+              　
+              　// ...
+           }
        }
    }
+   ```
 <p float="left">
 <img src="Images/barcode-reader-component.png" width="300" />
+</p>
+
+### Reading Barcodes with Google MLKit
+
+1. Add the `MlKitBarcodeReaderViewModel` component to a suitable `GameObject` and attach the `MediaProjectionViewModel` component created in the basic setup to its `MediaProjectionViewModel` field.
+2. Select the barcodes to be read from the `PossibleFormats` list (multiple formats can be selected). 
+    <details><summary>Supported barcode formats:</summary>
+
+    - `CODE_128`
+    - `CODE_39`
+    - `CODE_93`
+    - `CODABAR`
+    - `DATA_MATRIX`
+    - `EAN_13`
+    - `EAN_8`
+    - `ITF`
+    - `QR_CODE`
+    - `UPC_A`
+    - `UPC_E`
+    - `PDF417`
+    - `AZTEC`
+    </details>
+3. To handle barcode reading results, create a component and register it with the `Barcode Read` event. Similar to ZXing, you need to define a public method in your component that takes an array of `BarcodeReadingResult[]` as an argument.
+<p float="left">
+<img src="Images/mlkit-barcode-reader-component.png" width="300" />
 </p>
 
 ### Saving Captures
