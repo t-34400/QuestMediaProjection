@@ -20,13 +20,15 @@ public class BarcodeHighlightController : MonoBehaviour
 
     private LineRenderer? lineRenderer;
 
-    public void HighlightBarcode(BarcodeReadingResult result)
+    public void HighlightBarcode(BarcodeReadingResult[] results)
     {
-        if (lineRenderer == null)
+        if (lineRenderer == null || results.Length == 0)
         {
             return;
         }
 
+        var result = results[0];
+        
         var positions = 
             result.ResultPoints
                 .Select(point => ConvertCapturedImageToLocal(point))

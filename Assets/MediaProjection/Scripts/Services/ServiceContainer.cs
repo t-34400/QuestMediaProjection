@@ -52,6 +52,11 @@ namespace MediaProjection.Services
             return new BarcodeReaderService(MediaProjectionManager, possibleFormats, cropRequired, cropRange, tryHarder);
         }
 
+        public IMultipleBarcodeReaderService GetMlKitBarcodeReaderService(IEnumerable<Models.MlKitBarcodeFormat> possibleFormats)
+        {
+            return new MlKitBarcodeReaderService(MediaProjectionManager, possibleFormats);
+        }
+
         public void RequestImageSaver(string filenamePrefix)
         {
             if (bitmapSaver != null)

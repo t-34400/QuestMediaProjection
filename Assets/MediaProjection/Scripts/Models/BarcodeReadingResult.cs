@@ -7,6 +7,14 @@ using UnityEngine;
 namespace MediaProjection.Models
 {
     [Serializable]
+    public struct BarcodeReadingResults
+    {
+        [SerializeField] private BarcodeReadingResult[] results;
+
+        public BarcodeReadingResult[] Results => results;
+    }
+
+    [Serializable]
     public struct BarcodeReadingResult
     {
         [SerializeField] private string text;

@@ -25,4 +25,22 @@ namespace MediaProjection.Models
         UPC_E = 1 << 15,
         UPC_EAN_EXTENSION = 1 << 16,
     }
+
+    [Flags]
+    enum MlKitBarcodeFormat
+    {
+        FORMAT_CODE_128 = 1 << 0,
+        FORMAT_CODE_39 = 1 << 1,
+        FORMAT_CODE_93 = 1 << 2,
+        FORMAT_CODABAR = 1 << 3,
+        FORMAT_DATA_MATRIX = 1 << 4,
+        FORMAT_EAN_13 = 1 << 5,
+        FORMAT_EAN_8 = 1 << 6,
+        FORMAT_ITF = 1 << 7,
+        FORMAT_QR_CODE = 1 << 8,
+        FORMAT_UPC_A = 1 << 9,
+        FORMAT_UPC_E = 1 << 10,
+        FORMAT_PDF417 = 1 << 11,
+        FORMAT_AZTEC = 1 << 12
+    }
 }
