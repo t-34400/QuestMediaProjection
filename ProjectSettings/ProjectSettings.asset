@@ -142,6 +142,9 @@ PlayerSettings:
   bundleVersion: 1.0.0
   preloadedAssets:
   - {fileID: 11400000, guid: d7d68860189a19341a959ca4ee5c7d61, type: 2}
+  - {fileID: 11400000, guid: 2b32b1061e6de6644b641b8e01f76aec, type: 2}
+  - {fileID: 8959439514972134913, guid: 51582520970040f4f9285d45f80b884f, type: 2}
+  - {fileID: 9131876756968640601, guid: 7e37acdcce4510e409eb73d8f9f309ff, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -171,7 +174,7 @@ PlayerSettings:
   overrideDefaultApplicationIdentifier: 0
   AndroidBundleVersionCode: 1
   AndroidMinSdkVersion: 29
-  AndroidTargetSdkVersion: 34
+  AndroidTargetSdkVersion: 33
   AndroidPreferredInstallLocation: 0
   aotOptions: 
   stripEngineCode: 1
