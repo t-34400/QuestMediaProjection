@@ -15,7 +15,7 @@ namespace MediaProjection.ViewModels
         [SerializeField] private bool cropRequired = false;
         [SerializeField] private RectInt cropRect = new RectInt();
         [SerializeField] private bool tryHarder = false;
-        [SerializeField] private UnityEvent<Models.BarcodeReadingResult> barcodeRead = default!;
+        [SerializeField] private UnityEvent<Models.BarcodeReadingResult[]> barcodeRead = default!;
 
         private Services.IBarcodeReaderService? barcodeReaderService;
 
@@ -49,7 +49,7 @@ namespace MediaProjection.ViewModels
                 if (resultTimestamp != latestResultTimestamp)
                 {
                     latestResultTimestamp = resultTimestamp;
-                    barcodeRead.Invoke(result);
+                    barcodeRead.Invoke(new Models.BarcodeReadingResult[] { result });
                 }
             }
         }

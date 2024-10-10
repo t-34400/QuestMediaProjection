@@ -12,7 +12,6 @@ namespace MediaProjection.ViewModels
     {
         [SerializeField] private MediaProjectionViewModel mediaProjectionViewModel = default!;
         [SerializeField] private Models.MlKitBarcodeFormat possibleFormats = Models.MlKitBarcodeFormat.FORMAT_QR_CODE;
-        [SerializeField] private UnityEvent<Models.BarcodeReadingResult> _barcodeRead = default!;
         [SerializeField] private UnityEvent<Models.BarcodeReadingResult[]> barcodeRead = default!;
 
         private Services.IMultipleBarcodeReaderService? barcodeReaderService;
@@ -41,7 +40,6 @@ namespace MediaProjection.ViewModels
                 if (resultTimestamp != latestResultTimestamp)
                 {
                     latestResultTimestamp = resultTimestamp;
-                    _barcodeRead.Invoke(results.Results[0]);
                     barcodeRead.Invoke(results.Results);
                 }
             }
