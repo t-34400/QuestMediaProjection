@@ -14,6 +14,21 @@
   <a href="https://www.youtube.com/watch?v=RuTvhjlL4pQ"><img src="https://img.youtube.com/vi/RuTvhjlL4pQ/0.jpg" alt="IMAGE ALT TEXT"></a>
 </div>
 
+## Device Preparation
+
+### 1. **Firmware Version**
+Ensure that your Meta Quest device is running **firmware v68 or later**.  
+Media Projection functionality was re-enabled starting with **firmware v68**, so earlier versions may not work as expected.
+
+### 2. **App Permissions - Spatial Data**  
+Make sure to enable the **Spatial Data** permission for the app to function correctly.  
+To do this:
+  1. Open **Settings** on your Quest device.
+  2. Navigate to **Apps > App Permissions**.
+  3. Find your app and ensure **Spatial Data** is enabled.
+
+*(Thanks to [anagpuyol](https://github.com/t-34400/QuestMediaProjection/issues/2#issuecomment-2677194000) for pointing this out!)*  
+
 ## Installation
 
 1. **Create a Meta Quest Project**: Refer to the official tutorial at [Oculus Developer Documentation](https://developer.oculus.com/documentation/unity/unity-tutorial-hello-vr/) to set up a project for Meta Quest.
@@ -32,23 +47,38 @@
      <img src="Images/player-tab_2.png" width="300" />
      </p>
 
-4. **Modify AndroidManifest.xml**:
-   - Open `Assets/Plugins/Android/AndroidManifest.xml`.
-   - Add the following tag within the `manifest` tag:
+4. **Modify AndroidManifest.xml**:  
+   - Open `Assets/Plugins/Android/AndroidManifest.xml`.  
+   - Add the following permission inside the `<manifest>` tag:  
      ```xml
      <manifest ...>
-         <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+         <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
          ...
+     </manifest>
      ```
-   - Add the following tag within the `application` tag:
+   - Add the following service definition inside the `<application>` tag:  
      ```xml
      <application ...>
         <service
             android:name="com.t34400.mediaprojectionlib.core.MediaProjectionService"
             android:foregroundServiceType="mediaProjection"
-            android:stopWithTask="true" />
+            android:stopWithTask="true"
+            android:exported="false" />
         ...
      </application>
+     ```
+   - **Note:** In **Unity 6+**, you need to **remove the `UnityPlayerActivity` block** from the manifest to avoid conflicts.  
+     If your project is using **GameActivity**, keep the `UnityPlayerGameActivity` block and remove the `UnityPlayerActivity` block:  
+     ```xml
+     <!-- Remove this block if using GameActivity -->
+     <activity android:name="com.unity3d.player.UnityPlayerActivity" ...>
+         ...
+     </activity>
+
+     <!-- Keep this block if using GameActivity -->
+     <activity android:name="com.unity3d.player.UnityPlayerGameActivity" ...>
+         ...
+     </activity>
      ```
 
 5. **Update gradleTemplate.properties**:
