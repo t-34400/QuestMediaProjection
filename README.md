@@ -31,7 +31,12 @@ To do this:
 
 ## Installation
 
-1. **Create a Meta Quest Project**: Refer to the official tutorial at [Oculus Developer Documentation](https://developer.oculus.com/documentation/unity/unity-tutorial-hello-vr/) to set up a project for Meta Quest.
+1. **Create a Meta Quest Project**:  
+   - If using the **Meta SDK**, refer to the official tutorials:  
+     - [Hello World](https://developers.meta.com/horizon/documentation/unity/unity-tutorial-hello-vr)  
+     - [Passthrough Starter Guide](https://developers.meta.com/horizon/documentation/unity/unity-passthrough-gs)  
+   - If using **OpenXR**, refer to the OpenXR implementation at:  
+     - [QuestMediaProjection-OpenXR](https://github.com/t-34400/QuestMediaProjection-OpenXR)  
 
 2. **Download and Import UnityPackage**:
    - Download the UnityPackage from the [GitHub Releases](https://github.com/t-34400/QuestMediaProjection/releases) page.
@@ -52,6 +57,7 @@ To do this:
    - Add the following permission inside the `<manifest>` tag:  
      ```xml
      <manifest ...>
+         <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
          <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
          ...
      </manifest>
