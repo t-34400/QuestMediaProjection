@@ -51,6 +51,8 @@ To do this:
      <img src="Images/player-tab_1.png" width="300" />
      <img src="Images/player-tab_2.png" width="300" />
      </p>
+    
+  - If you have enabled `Minify` in the Publishing Settings, you will need to check the `Custom Proguard File` option.
 
 4. **Modify AndroidManifest.xml**:  
    - Open `Assets/Plugins/Android/AndroidManifest.xml`.  
@@ -109,6 +111,13 @@ To do this:
         implementation 'com.google.mlkit:barcode-scanning:17.3.0'  // Use this if you are using Google ML Kit for barcode scanning
      }
      ```
+
+7. **Update proguard-user.txt**:
+  - If you have enabled Minify in the Publishing Settings you need to add the following line to the generated `Assets/Plugins/Android/proguard-user.txt` by enabling the `Custom Proguard File` option 
+    ```txt
+    -keep class com.t34400.mediaprojectionlib.** { *; }
+    ```
+    (Thank you to [stephanmitph](https://github.com/t-34400/QuestMediaProjection/issues/5) for pointing out!)
 
 ## Usage
 
