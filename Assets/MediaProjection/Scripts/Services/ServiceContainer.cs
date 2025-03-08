@@ -93,18 +93,22 @@ namespace MediaProjection.Services
             barcodeReaderServices.ForEach(service => service.SetMediaProjectionManager(null));
             mlKitBarcodeReaderServices.ForEach(service => service.SetMediaProjectionManager(null));
 
-            mediaProjectionManager?.Dispose();
-            mediaProjectionManager = null;
-
             bitmapSaver?.Dispose();
             bitmapSaver = null;
+
+            using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+            {
+                using (AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
+                {
+                    mediaProjectionManager?.Call("stopMediaProjection", activity);
+                }
+            }
+            mediaProjectionManager?.Dispose();
+            mediaProjectionManager = null;
         }
 
         private void OnDestroy()
         {
-            mediaProjectionService?.Dispose();
-            mediaProjectionService = null;
-
             barcodeReaderServices.ForEach(service => service.Dispose());
             barcodeReaderServices.Clear();
 
@@ -113,6 +117,16 @@ namespace MediaProjection.Services
 
             bitmapSaver?.Dispose();
             bitmapSaver = null;
+
+            using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+            {
+                using (AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
+                {
+                    mediaProjectionManager?.Call("stopMediaProjection", activity);
+                }
+            }
+            mediaProjectionService?.Dispose();
+            mediaProjectionService = null;
         }
     }
 }
