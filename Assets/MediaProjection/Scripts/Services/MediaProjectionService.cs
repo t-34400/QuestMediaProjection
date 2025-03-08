@@ -6,9 +6,14 @@ namespace MediaProjection.Services
 {
     class MediaProjectionService : IMediaProjectionService
     {
-        private readonly AndroidJavaObject mediaProjectionManager;
+        private AndroidJavaObject? mediaProjectionManager;
 
-        public MediaProjectionService(AndroidJavaObject mediaProjectionManager)
+        public MediaProjectionService(AndroidJavaObject? mediaProjectionManager)
+        {
+            this.mediaProjectionManager = mediaProjectionManager;
+        }
+
+        internal void SetMediaProjectionManager(AndroidJavaObject? mediaProjectionManager)
         {
             this.mediaProjectionManager = mediaProjectionManager;
         }
@@ -16,6 +21,11 @@ namespace MediaProjection.Services
         public bool TryGetScreenCapture(bool textureRequired, out Texture2D texture)
         {
             texture = new Texture2D(1, 1);
+
+            if (mediaProjectionManager == null)
+            {
+                return false;
+            }
 
             var imageData = mediaProjectionManager.Call<byte[]>("getLatestImageIfAvailable", textureRequired);
             if (imageData != null && imageData.Length > 0)
@@ -32,7 +42,7 @@ namespace MediaProjection.Services
 
         public void Dispose()
         {
-            mediaProjectionManager.Dispose();
+            mediaProjectionManager?.Dispose();
         }
     }
 }
