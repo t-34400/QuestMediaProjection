@@ -12,33 +12,16 @@ namespace MediaProjection.Services
 
         private MediaProjectionService? mediaProjectionService = null;
 
-        private AndroidJavaObject MediaProjectionManager
-        {
-            get
-            {
-                if (mediaProjectionManager != null)
-                {
-                    return mediaProjectionManager;
-                }
+        private List<BarcodeReaderService> barcodeReaderServices = new();
+        private List<MlKitBarcodeReaderService> mlKitBarcodeReaderServices = new();
 
-                using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
-                {
-                    using (AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
-                    {
-                        mediaProjectionManager = new AndroidJavaObject(
-                                "com.t34400.mediaprojectionlib.core.MediaProjectionManager", 
-                                activity);
-                        return mediaProjectionManager;
-                    }                
-                }
-            }
-        }
+        private string imageSaverFilenamePrefix = "";
 
         public IMediaProjectionService MediaProjectionService
         {
             get
             {
-                mediaProjectionService ??= new MediaProjectionService(MediaProjectionManager);
+                mediaProjectionService ??= new MediaProjectionService(mediaProjectionManager);
                 return mediaProjectionService;
             }
         }
@@ -49,17 +32,25 @@ namespace MediaProjection.Services
             RectInt cropRange,
             bool tryHarder)
         {
-            return new BarcodeReaderService(MediaProjectionManager, possibleFormats, cropRequired, cropRange, tryHarder);
+            var barcodeReaderService = new BarcodeReaderService(mediaProjectionManager, possibleFormats, cropRequired, cropRange, tryHarder);
+            barcodeReaderServices.Add(barcodeReaderService);
+
+            return barcodeReaderService;
         }
 
         public IMultipleBarcodeReaderService GetMlKitBarcodeReaderService(IEnumerable<Models.MlKitBarcodeFormat> possibleFormats)
         {
-            return new MlKitBarcodeReaderService(MediaProjectionManager, possibleFormats);
+            var mlKitBarcodeReaderService = new MlKitBarcodeReaderService(mediaProjectionManager, possibleFormats);
+            mlKitBarcodeReaderServices.Add(mlKitBarcodeReaderService);
+
+            return mlKitBarcodeReaderService;
         }
 
         public void RequestImageSaver(string filenamePrefix)
         {
-            if (bitmapSaver != null)
+            imageSaverFilenamePrefix = filenamePrefix;
+
+            if (bitmapSaver != null || string.IsNullOrEmpty(filenamePrefix) || mediaProjectionManager == null)
             {
                 return;
             }
@@ -71,19 +62,71 @@ namespace MediaProjection.Services
                     bitmapSaver = new AndroidJavaObject(
                             "com.t34400.mediaprojectionlib.io.BitmapSaver", 
                             activity,
-                            MediaProjectionManager,
+                            mediaProjectionManager,
                             filenamePrefix);
                 }
             }
         }
 
-        private void OnDestroy()
+        private void OnEnable()
         {
-            mediaProjectionService?.Dispose();
-            mediaProjectionService = null;
+            using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+            {
+                using (AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
+                {
+                    mediaProjectionManager = new AndroidJavaObject(
+                            "com.t34400.mediaprojectionlib.core.MediaProjectionManager", 
+                            activity);
+                }
+            }
+            
+            mediaProjectionService?.SetMediaProjectionManager(mediaProjectionManager);
+            barcodeReaderServices.ForEach(service => service.SetMediaProjectionManager(mediaProjectionManager));
+            mlKitBarcodeReaderServices.ForEach(service => service.SetMediaProjectionManager(mediaProjectionManager));
+
+            RequestImageSaver(imageSaverFilenamePrefix);
+        }
+
+        private void OnDisable()
+        {
+            mediaProjectionService?.SetMediaProjectionManager(null);
+            barcodeReaderServices.ForEach(service => service.SetMediaProjectionManager(null));
+            mlKitBarcodeReaderServices.ForEach(service => service.SetMediaProjectionManager(null));
 
             bitmapSaver?.Dispose();
             bitmapSaver = null;
+
+            using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+            {
+                using (AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
+                {
+                    mediaProjectionManager?.Call("stopMediaProjection", activity);
+                }
+            }
+            mediaProjectionManager?.Dispose();
+            mediaProjectionManager = null;
+        }
+
+        private void OnDestroy()
+        {
+            barcodeReaderServices.ForEach(service => service.Dispose());
+            barcodeReaderServices.Clear();
+
+            mlKitBarcodeReaderServices.ForEach(service => service.Dispose());
+            mlKitBarcodeReaderServices.Clear();
+
+            bitmapSaver?.Dispose();
+            bitmapSaver = null;
+
+            using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+            {
+                using (AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
+                {
+                    mediaProjectionManager?.Call("stopMediaProjection", activity);
+                }
+            }
+            mediaProjectionService?.Dispose();
+            mediaProjectionService = null;
         }
     }
 }

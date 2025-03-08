@@ -7,12 +7,27 @@ namespace MediaProjection.Services
 {
     class MlKitBarcodeReaderService : IMultipleBarcodeReaderService
     {
-        private readonly AndroidJavaObject barcodeReader;
+        private AndroidJavaObject? barcodeReader;
+
+        private readonly IEnumerable<Models.MlKitBarcodeFormat> possibleFormats;
 
         public MlKitBarcodeReaderService(
-            AndroidJavaObject mediaProjectionManager,
+            AndroidJavaObject? mediaProjectionManager,
             IEnumerable<Models.MlKitBarcodeFormat> possibleFormats)
         {
+            this.possibleFormats = possibleFormats;
+            SetMediaProjectionManager(mediaProjectionManager);
+        }
+
+        internal void SetMediaProjectionManager(AndroidJavaObject? mediaProjectionManager)
+        {
+            Dispose();
+
+            if (mediaProjectionManager == null)
+            {
+                return;
+            }
+
             barcodeReader = new AndroidJavaObject(
                 "com.t34400.mediaprojectionlib.mlkit.MlKitBarcodeReader",
                 mediaProjectionManager,
@@ -22,6 +37,12 @@ namespace MediaProjection.Services
 
         public bool TryGetBarcodeReadingResult(out Models.BarcodeReadingResults result)
         {
+            if (barcodeReader == null)
+            {
+                result = default;
+                return false;
+            }
+
             var resultJson = barcodeReader.Call<string>("getLatestResult");
             Debug.Log($"Barcode Reader Result: \n{resultJson}");
 
@@ -39,6 +60,7 @@ namespace MediaProjection.Services
         {
             barcodeReader?.Call("close");
             barcodeReader?.Dispose();
+            barcodeReader = null;
         }
     }
 }
