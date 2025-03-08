@@ -239,6 +239,14 @@ To do this:
 
 This project is licensed under the [MIT License](LICENSE).
 
+## Note
+- **To enable/disable MediaProjection:**  
+  Simply set `ServiceContainer.enabled` to `true` or `false`.  
+  - **Important Limitation:**  
+    - `MediaProjection` does not support a built-in pause/resume feature.  
+    - If you disable it, you will need to request user permission again to restart the projection.  
+  - **If you only want to pause Unity-side processing** while keeping `MediaProjection` active, set `enabled = false` on the corresponding `ViewModel` instead.  
+
 ## AAR Source Code
 [MediaProjectionLib](https://github.com/t-34400/MediaProjectionLib)
 
