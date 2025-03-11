@@ -12,11 +12,11 @@ namespace MediaProjection.Services
         private readonly IEnumerable<Models.MlKitBarcodeFormat> possibleFormats;
 
         public MlKitBarcodeReaderService(
-            AndroidJavaObject? mediaProjectionManager,
+            AndroidJavaObject? imageProcessManager,
             IEnumerable<Models.MlKitBarcodeFormat> possibleFormats)
         {
             this.possibleFormats = possibleFormats;
-            SetMediaProjectionManager(mediaProjectionManager);
+            SetMediaProjectionManager(imageProcessManager);
         }
 
         internal void SetMediaProjectionManager(AndroidJavaObject? mediaProjectionManager)

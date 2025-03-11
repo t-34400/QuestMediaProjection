@@ -8,6 +8,7 @@ namespace MediaProjection.Services
     class ServiceContainer : MonoBehaviour
     {
         private AndroidJavaObject? mediaProjectionManager;
+        private AndroidJavaObject? imageProcessManager;
         private AndroidJavaObject? bitmapSaver;
 
         private MediaProjectionService? mediaProjectionService = null;
@@ -21,7 +22,7 @@ namespace MediaProjection.Services
         {
             get
             {
-                mediaProjectionService ??= new MediaProjectionService(mediaProjectionManager);
+                mediaProjectionService ??= new MediaProjectionService(imageProcessManager);
                 return mediaProjectionService;
             }
         }
@@ -32,7 +33,7 @@ namespace MediaProjection.Services
             RectInt cropRange,
             bool tryHarder)
         {
-            var barcodeReaderService = new BarcodeReaderService(mediaProjectionManager, possibleFormats, cropRequired, cropRange, tryHarder);
+            var barcodeReaderService = new BarcodeReaderService(imageProcessManager, possibleFormats, cropRequired, cropRange, tryHarder);
             barcodeReaderServices.Add(barcodeReaderService);
 
             return barcodeReaderService;
@@ -40,7 +41,7 @@ namespace MediaProjection.Services
 
         public IMultipleBarcodeReaderService GetMlKitBarcodeReaderService(IEnumerable<Models.MlKitBarcodeFormat> possibleFormats)
         {
-            var mlKitBarcodeReaderService = new MlKitBarcodeReaderService(mediaProjectionManager, possibleFormats);
+            var mlKitBarcodeReaderService = new MlKitBarcodeReaderService(imageProcessManager, possibleFormats);
             mlKitBarcodeReaderServices.Add(mlKitBarcodeReaderService);
 
             return mlKitBarcodeReaderService;
@@ -50,7 +51,7 @@ namespace MediaProjection.Services
         {
             imageSaverFilenamePrefix = filenamePrefix;
 
-            if (bitmapSaver != null || string.IsNullOrEmpty(filenamePrefix) || mediaProjectionManager == null)
+            if (bitmapSaver != null || string.IsNullOrEmpty(filenamePrefix) || imageProcessManager == null)
             {
                 return;
             }
@@ -62,7 +63,7 @@ namespace MediaProjection.Services
                     bitmapSaver = new AndroidJavaObject(
                             "com.t34400.mediaprojectionlib.io.BitmapSaver", 
                             activity,
-                            mediaProjectionManager,
+                            imageProcessManager,
                             filenamePrefix);
                 }
             }
@@ -77,12 +78,15 @@ namespace MediaProjection.Services
                     mediaProjectionManager = new AndroidJavaObject(
                             "com.t34400.mediaprojectionlib.core.MediaProjectionManager", 
                             activity);
+                    imageProcessManager = new AndroidJavaObject(
+                            "com.t34400.mediaprojectionlib.core.ScreenImageProcessManager", 
+                            mediaProjectionManager);
                 }
             }
             
-            mediaProjectionService?.SetMediaProjectionManager(mediaProjectionManager);
-            barcodeReaderServices.ForEach(service => service.SetMediaProjectionManager(mediaProjectionManager));
-            mlKitBarcodeReaderServices.ForEach(service => service.SetMediaProjectionManager(mediaProjectionManager));
+            mediaProjectionService?.SetMediaProjectionManager(imageProcessManager);
+            barcodeReaderServices.ForEach(service => service.SetMediaProjectionManager(imageProcessManager));
+            mlKitBarcodeReaderServices.ForEach(service => service.SetMediaProjectionManager(imageProcessManager));
 
             RequestImageSaver(imageSaverFilenamePrefix);
         }
@@ -95,6 +99,9 @@ namespace MediaProjection.Services
 
             bitmapSaver?.Dispose();
             bitmapSaver = null;
+
+            imageProcessManager?.Dispose();
+            imageProcessManager = null;
 
             using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
             {
@@ -117,6 +124,9 @@ namespace MediaProjection.Services
 
             bitmapSaver?.Dispose();
             bitmapSaver = null;
+
+            imageProcessManager?.Dispose();
+            imageProcessManager = null;
 
             using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
             {
