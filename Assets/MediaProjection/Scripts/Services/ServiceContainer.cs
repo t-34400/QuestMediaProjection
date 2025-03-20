@@ -1,5 +1,6 @@
 #nullable enable
 
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,6 +8,9 @@ namespace MediaProjection.Services
 {
     class ServiceContainer : MonoBehaviour
     {
+        [SerializeField] private bool enableImageProcessing = true;
+
+        private AndroidJavaObject? mediaProjectionCallback;
         private AndroidJavaObject? mediaProjectionManager;
         private AndroidJavaObject? imageProcessManager;
         private AndroidJavaObject? bitmapSaver;
@@ -18,6 +22,11 @@ namespace MediaProjection.Services
 
         private string imageSaverFilenamePrefix = "";
 
+        internal Func<AndroidJavaObject, AndroidJavaObject, AndroidJavaObject> GetMediaProjectionManager = (activity, callback) => 
+            new AndroidJavaObject(
+                "com.t34400.mediaprojectionlib.core.MediaProjectionManager", 
+                activity, callback);
+
         public IMediaProjectionService MediaProjectionService
         {
             get
@@ -26,6 +35,9 @@ namespace MediaProjection.Services
                 return mediaProjectionService;
             }
         }
+
+        internal AndroidJavaObject? MediaProjectionManager => mediaProjectionManager;
+        internal event Action<AndroidJavaObject?>? MediaProjectionManagerChanged;
 
         public IBarcodeReaderService GetBarcodeReaderService(
             IEnumerable<Models.BarcodeFormat> possibleFormats,
@@ -71,16 +83,20 @@ namespace MediaProjection.Services
 
         private void OnEnable()
         {
+            mediaProjectionCallback = new AndroidJavaObject("com.t34400.mediaprojectionlib.core.MediaProjectionCallback");
+
             using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
             {
                 using (AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
                 {
-                    mediaProjectionManager = new AndroidJavaObject(
-                            "com.t34400.mediaprojectionlib.core.MediaProjectionManager", 
-                            activity);
-                    imageProcessManager = new AndroidJavaObject(
-                            "com.t34400.mediaprojectionlib.core.ScreenImageProcessManager", 
-                            mediaProjectionManager);
+                    mediaProjectionManager = GetMediaProjectionManager(activity, mediaProjectionCallback);
+
+                    if (enableImageProcessing)
+                    {
+                        imageProcessManager = new AndroidJavaObject(
+                                "com.t34400.mediaprojectionlib.core.ScreenImageProcessManager", 
+                                mediaProjectionManager);
+                    }
                 }
             }
             
@@ -89,6 +105,8 @@ namespace MediaProjection.Services
             mlKitBarcodeReaderServices.ForEach(service => service.SetMediaProjectionManager(imageProcessManager));
 
             RequestImageSaver(imageSaverFilenamePrefix);
+
+            MediaProjectionManagerChanged?.Invoke(mediaProjectionManager);
         }
 
         private void OnDisable()
@@ -112,6 +130,11 @@ namespace MediaProjection.Services
             }
             mediaProjectionManager?.Dispose();
             mediaProjectionManager = null;
+
+            mediaProjectionCallback?.Dispose();
+            mediaProjectionCallback = null;
+
+            MediaProjectionManagerChanged?.Invoke(null);
         }
 
         private void OnDestroy()
