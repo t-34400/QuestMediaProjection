@@ -1,0 +1,16 @@
+{
+    "name": "MediaProjection.WebRTC",
+    "rootNamespace": "MediaProjection.WebRTC",
+    "references": [
+        "GUID:7d72af52a468cf64c9f87bcceefec7e6"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

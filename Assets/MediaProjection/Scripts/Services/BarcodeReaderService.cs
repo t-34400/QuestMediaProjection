@@ -15,7 +15,7 @@ namespace MediaProjection.Services
         private readonly bool tryHarder;
 
         public BarcodeReaderService(
-            AndroidJavaObject? mediaProjectionManager,
+            AndroidJavaObject? imageProcessManager,
             IEnumerable<Models.BarcodeFormat> possibleFormats,
             bool cropRequired,
             RectInt cropRange,
@@ -26,7 +26,7 @@ namespace MediaProjection.Services
             this.cropRange = cropRange;
             this.tryHarder = tryHarder;
             
-            SetMediaProjectionManager(mediaProjectionManager);
+            SetMediaProjectionManager(imageProcessManager);
         }
 
         internal void SetMediaProjectionManager(AndroidJavaObject? mediaProjectionManager)

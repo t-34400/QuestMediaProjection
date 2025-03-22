@@ -1,10 +1,11 @@
-# Quest Media Projection Plugin for Unity
+# **Quest Media Projection Plugin for Unity**  
 
-`Quest Media Projection Plugin for Unity` is a Unity plugin for capturing the Meta Quest screen using the MediaProjection API. This plugin provides three main features:
+`Quest Media Projection Plugin for Unity` is a Unity plugin for capturing the Meta Quest screen using the MediaProjection API. This plugin provides four main features:  
 
-1. **Capture Screen as Texture2D**: Capture the Meta Quest screen and handle it as a `Texture2D` in Unity.
-2. **Barcode Scanning**: Read specified barcodes from the captured screen using ZXing.
-3. **Save Screen Captures**: Save the captured screen to storage.
+1. **Capture Screen as Texture2D**: Capture the Meta Quest screen and handle it as a `Texture2D` in Unity.  
+2. **Barcode Scanning**: Read specified barcodes from the captured screen using ZXing.  
+3. **Save Screen Captures**: Save the captured screen to storage.  
+4. 🚀 **WebRTC Support (NEW in v1.3.0!)** 🚀 – Stream captured screen content in **real-time** using WebRTC for seamless remote viewing and communication.  
 
 ## YouTube
 <div align="left">
@@ -235,10 +236,6 @@ To do this:
 <img src="Images/image-saver-component.png" width="300" />
 </p>
 
-## License
-
-This project is licensed under the [MIT License](LICENSE).
-
 ## Note
 - **To enable/disable MediaProjection:**  
   Simply set `ServiceContainer.enabled` to `true` or `false`.  
@@ -247,11 +244,101 @@ This project is licensed under the [MIT License](LICENSE).
     - If you disable it, you will need to request user permission again to restart the projection.  
   - **If you only want to pause Unity-side processing** while keeping `MediaProjection` active, set `enabled = false` on the corresponding `ViewModel` instead.  
 
+## **WebRTC Support** (Optional)  
+<details>  
+<summary>Click to expand</summary>  
+
+### **Installation**  
+1. Complete the **MediaProjection** installation steps.  
+2. Add the following dependency to `Assets/Plugins/Android/mainTemplate.gradle`:  
+   ```gradle
+   implementation 'io.getstream:stream-webrtc-android:1.3.8'
+   ```
+3. If using microphone audio, add the following permission to `AndroidManifest.xml`:  
+   ```xml
+   <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+   ```
+
+### **Usage**  
+1. Add the **ServiceContainer** component to your scene and enable the **Enable WebRTC** option.  
+   - If only using WebRTC, disable **Enable Image Processing**.  
+2. Add the **WebRtc Media Projection Manager** component to your scene and attach the previously added **ServiceContainer** component.  
+3. From any script, call `WebRtcMediaProjectionManager.CreatePeerConnection()` to create a PeerConnection and handle signaling.  
+
+### **API Reference**  
+This library is a wrapper around the **[native WebRTC library](https://getstream.github.io/webrtc-android/index.html)**, so refer to its documentation for more details.  
+
+#### **class PeerConnection**  
+**Methods:**  
+```csharp
+void CreateOffer(SdpObserver observer, Dictionary<string, string> constraints)
+void CreateAnswer(SdpObserver observer, Dictionary<string, string> constraints)
+string GetLocalDescription()
+void GetRemoteDescription(SdpObserver observer)
+void SetLocalDescription(SdpObserver observer)
+void SetLocalDescription(SdpObserver observer, SessionDescriptionType type, string description)
+void SetRemoteDescription(SdpObserver observer, string type, string description)
+bool AddIceCandidate(string sdpMid, int sdpMLineIndex, string sdp)
+void RestartIce()
+PeerConnectionState GetConnectionState()
+IceConnectionState GetIceConnectionState()
+IceGatheringState GetIceGatheringState()
+SignalingState GetSignalingState()
+void SetAudioPlayout(bool enable)
+void SetAudioRecording(bool enable)
+void SetBitrate(int min, int current, int max)
+```
+**Events:**  
+```csharp
+event Action? OnVideoTrackAdded
+event Action<SignalingState>? OnSignalingChange
+event Action<IceConnectionState>? OnIceConnectionChange
+event Action<bool>? OnIceConnectionReceivingChange
+event Action<IceGatheringState>? OnIceGatheringChange
+event Action<IceCandidateData>? OnIceCandidate
+event Action? OnRenegotiationNeeded
+```
+
+#### **class SdpObserver**  
+**Constructor:**  
+```csharp
+SdpObserver()
+```
+**Events:**  
+```csharp
+event Action<SessionDescription>? OnCreateSuccess;
+event Action? OnSetSuccess;
+event Action<string>? OnCreateFailure;
+event Action<string>? OnSetFailure;
+```
+
+### **Note**  
+- **Signaling** must be performed **after** enabling the `ServiceContainer`.  
+- If `ServiceContainer` is disabled, a new `PeerConnection` must be created.  
+- **Video and audio tracks** are automatically configured.  
+- If your script is inside an Assembly Definition, you need to add MediaProjection.WebRTC to its references in order to use WebRTC features.
+</details>  
+
 ## AAR Source Code
 [MediaProjectionLib](https://github.com/t-34400/MediaProjectionLib)
 
-## Acknowledgements
+## **Acknowledgements**
+This project uses the following libraries:
 
-This project uses the [ZXing](https://github.com/zxing/zxing) library, which is licensed under the [Apache License 2.0](https://opensource.org/licenses/Apache-2.0). 
+- [ZXing](https://github.com/zxing/zxing), licensed under the [Apache License 2.0](https://opensource.org/licenses/Apache-2.0).  
+- [ML Kit](https://developers.google.com/ml-kit), subject to the [ML Kit Terms of Service](https://developers.google.com/ml-kit/terms).  
+- [WebRTC Android by Stream](https://github.com/GetStream/webrtc-android?tab=readme-ov-file), licensed under the [Apache License 2.0](https://github.com/GetStream/webrtc-android/blob/main/LICENSE).  
+- [NativeWebSocket](https://github.com/endel/NativeWebSocket), licensed under the [MIT License](https://github.com/endel/NativeWebSocket/blob/master/LICENSE).  
 
-We would like to thank the ZXing contributors for their work on this library.
+We would like to thank the contributors of these libraries for their work.
+
+## **License**  
+This project is licensed under the [MIT License](LICENSE).  
+
+If you include the following libraries as dependencies in your Unity project, please ensure compliance with their respective licenses:  
+
+- **[ZXing](https://github.com/zxing/zxing)** – [Apache License 2.0](https://opensource.org/licenses/Apache-2.0)  
+- **[ML Kit](https://developers.google.com/ml-kit)** – [ML Kit Terms of Service](https://developers.google.com/ml-kit/terms)  
+- **[WebRTC Android by Stream](https://github.com/GetStream/webrtc-android?tab=readme-ov-file)** – [Apache License 2.0](https://github.com/GetStream/webrtc-android/blob/main/LICENSE)  
+
+Make sure to review and adhere to the licensing terms of these libraries when integrating them into your project.  
