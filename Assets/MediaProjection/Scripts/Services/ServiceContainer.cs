@@ -9,6 +9,7 @@ namespace MediaProjection.Services
     class ServiceContainer : MonoBehaviour
     {
         [SerializeField] private bool enableImageProcessing = true;
+        [SerializeField] private bool enableWebRtc = false;
 
         private AndroidJavaObject? mediaProjectionCallback;
         private AndroidJavaObject? mediaProjectionManager;
@@ -21,11 +22,6 @@ namespace MediaProjection.Services
         private List<MlKitBarcodeReaderService> mlKitBarcodeReaderServices = new();
 
         private string imageSaverFilenamePrefix = "";
-
-        internal Func<AndroidJavaObject, AndroidJavaObject, AndroidJavaObject> GetMediaProjectionManager = (activity, callback) => 
-            new AndroidJavaObject(
-                "com.t34400.mediaprojectionlib.core.MediaProjectionManager", 
-                activity, callback);
 
         public IMediaProjectionService MediaProjectionService
         {
@@ -89,7 +85,15 @@ namespace MediaProjection.Services
             {
                 using (AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
                 {
-                    mediaProjectionManager = GetMediaProjectionManager(activity, mediaProjectionCallback);
+                    var mediaProjectionManagerClassName = 
+                        enableWebRtc ? "com.t34400.mediaprojectionlib.webrtc.WebRtcMediaProjectionManager" 
+                            : "com.t34400.mediaprojectionlib.core.MediaProjectionManager";
+                    Debug.Log("MediaProjectionManagerClassName: " + mediaProjectionManagerClassName);
+                    
+                    mediaProjectionManager = new AndroidJavaObject(
+                            mediaProjectionManagerClassName, 
+                            activity, 
+                            mediaProjectionCallback);
 
                     if (enableImageProcessing)
                     {
@@ -111,15 +115,21 @@ namespace MediaProjection.Services
 
         private void OnDisable()
         {
+            Debug.Log("ServiceContainer.OnDisable");
+
             mediaProjectionService?.SetMediaProjectionManager(null);
             barcodeReaderServices.ForEach(service => service.SetMediaProjectionManager(null));
             mlKitBarcodeReaderServices.ForEach(service => service.SetMediaProjectionManager(null));
+
+            Debug.Log("ServiceContainer.OnDisable: Disposing services");
 
             bitmapSaver?.Dispose();
             bitmapSaver = null;
 
             imageProcessManager?.Dispose();
             imageProcessManager = null;
+
+            Debug.Log("ServiceContainer.OnDisable: Stopping media projection");
 
             using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
             {
@@ -128,13 +138,20 @@ namespace MediaProjection.Services
                     mediaProjectionManager?.Call("stopMediaProjection", activity);
                 }
             }
+
+            Debug.Log("ServiceContainer.OnDisable: Disposing media projection manager");
+
+            MediaProjectionManagerChanged?.Invoke(null);
+
+            Debug.Log("ServiceContainer.OnDisable: MediaProjectionManagerChanged invoked");
+
             mediaProjectionManager?.Dispose();
             mediaProjectionManager = null;
 
             mediaProjectionCallback?.Dispose();
             mediaProjectionCallback = null;
 
-            MediaProjectionManagerChanged?.Invoke(null);
+            Debug.Log("ServiceContainer.OnDisable: Disposed");
         }
 
         private void OnDestroy()

@@ -663,7 +663,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &782628377
 Transform:
   m_ObjectHideFlags: 0
@@ -725,6 +725,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 651187c95c733d7459e05e57e2c8f957, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enableImageProcessing: 1
+  enableWebRtc: 1
 --- !u!1 &967939537
 GameObject:
   m_ObjectHideFlags: 0
@@ -829,6 +831,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1084491719}
+  - component: {fileID: 1084491720}
   - component: {fileID: 1084491718}
   m_Layer: 0
   m_Name: WebRTCTest
@@ -849,6 +852,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d3f0d2936c469947bd38bcda3cc44e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mediaProjectionManager: {fileID: 1084491720}
+  iceServers:
+  - stun:stun.l.google.com:19302
+  constraints:
+  - key: OfferToReceiveVideo
+    value: false
+  serverUrl: ws://192.168.2.187:8000/ws
 --- !u!4 &1084491719
 Transform:
   m_ObjectHideFlags: 0
@@ -864,6 +874,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1084491720
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1084491717}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d57fc000976c5164d95dd3f5722fc76e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  serviceContainer: {fileID: 782628380}
+  stateUpdateInterval: 0.1
 --- !u!1 &1100449128
 GameObject:
   m_ObjectHideFlags: 0
@@ -2121,8 +2145,8 @@ SceneRoots:
   m_Roots:
   - {fileID: 705507995}
   - {fileID: 153851280}
-  - {fileID: 1084491719}
   - {fileID: 782628377}
+  - {fileID: 1084491719}
   - {fileID: 1452091277}
   - {fileID: 62041870}
   - {fileID: 1984790176}

@@ -46,13 +46,11 @@ namespace MediaProjection.WebRtc
         public void RemovePeerConnection(PeerConnection peerConnection)
         {
             var mediaProjectionManager = serviceContainer.MediaProjectionManager;
-            if (mediaProjectionManager == null)
+            if (mediaProjectionManager != null)
             {
                 Debug.LogError("MediaProjectionManager is not available");
-                return;
+                mediaProjectionManager.Call("removePeerConnection", peerConnection.PeerConnectionObject);
             }
-
-            mediaProjectionManager.Call("removePeerConnection", peerConnection.PeerConnectionObject);
 
             peerConnections.Remove(peerConnection);
             peerConnection.Dispose();
@@ -60,10 +58,13 @@ namespace MediaProjection.WebRtc
 
         private void Awake()
         {
-            serviceContainer.GetMediaProjectionManager = (activity, callback) =>
-                new AndroidJavaObject(
-                    "com.t34400.mediaprojectionlib.webrtc.WebRtcMediaProjectionManager",
-                    activity, callback);
+            serviceContainer.MediaProjectionManagerChanged += OnMediaProjectionManagerChanged;
+        }
+
+        private void OnMediaProjectionManagerChanged(AndroidJavaObject? mediaProjectionManager)
+        {
+            peerConnections.ForEach(pc => pc.Dispose());
+            peerConnections.Clear();
         }
 
         private void Update()
@@ -80,7 +81,6 @@ namespace MediaProjection.WebRtc
 
         private void OnDestroy()
         {
-            peerConnections.ForEach(pc => pc.Dispose());
             peerConnections.Clear();
         }
     }

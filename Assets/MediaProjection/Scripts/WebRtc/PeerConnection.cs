@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 
@@ -13,6 +14,8 @@ namespace MediaProjection.WebRtc
         private AndroidJavaObject? peerConnectionObserver;
         private List<SdpObserver> sdpObservers = new List<SdpObserver>();
 
+        private bool wasVideoTrackAdded = false;
+
         public PeerConnection(AndroidJavaObject peerConnectionObject, AndroidJavaObject peerConnectionObserverObject)
         {
             peerConnection = peerConnectionObject;
@@ -23,15 +26,23 @@ namespace MediaProjection.WebRtc
 
         public void Dispose()
         {
+            Debug.Log("Disposing PeerConnection");
+            
             sdpObservers.ForEach(observer => observer.Dispose());
             sdpObservers.Clear();
+
+            Debug.Log("Disposing SdpObservers");
 
             peerConnectionObserver?.Dispose();
             peerConnectionObserver = null;
 
-            peerConnection?.Call("dispose");
+            Debug.Log("Disposing PeerConnectionObserver");
+
+            //peerConnection?.Call("dispose");
             peerConnection?.Dispose();
             peerConnection = null;
+
+            Debug.Log("PeerConnection disposed");
         }
 
 # region SDP communication
@@ -107,6 +118,21 @@ namespace MediaProjection.WebRtc
             sdpObservers.Add(observer);
 
             peerConnection?.Call("setLocalDescription", observerObject);
+        }
+
+        public void SetLocalDescription(SdpObserver observer, SessionDescriptionType type, string description)
+        {
+            var observerObject = observer.SdpObserverObject;
+
+            if (peerConnection == null || observer.IsDisposed || observerObject == null)
+            {
+                Debug.LogError("PeerConnection or SdpObserver is null or disposed.");
+                return;
+            }
+
+            sdpObservers.Add(observer);
+
+            peerConnection?.Call("setLocalDescription", observerObject, type.ToString(), description);
         }
 
         public void SetRemoteDescription(SdpObserver observer, string type, string description)
@@ -257,12 +283,13 @@ namespace MediaProjection.WebRtc
 # endregion
 
 # region Observer Events
+        public event Action? OnVideoTrackAdded;
         public event Action<SignalingState>? OnSignalingChange;
         public event Action<IceConnectionState>? OnIceConnectionChange;
         public event Action<bool>? OnIceConnectionReceivingChange;
         public event Action<IceGatheringState>? OnIceGatheringChange;
         public event Action<IceCandidateData>? OnIceCandidate;
-        public event Action? OnNegotiationNeeded;
+        public event Action? OnRenegotiationNeeded;
 # endregion
 
         internal void ObserveState()
@@ -273,6 +300,16 @@ namespace MediaProjection.WebRtc
             }
             else
             {
+                if (!wasVideoTrackAdded && peerConnection != null)
+                {
+                    var videoTrackAdded = peerConnection.Call<bool>("isVideoTrackAdded");
+                    if (videoTrackAdded)
+                    {
+                        wasVideoTrackAdded = true;
+                        OnVideoTrackAdded?.Invoke();
+                    }
+                }
+
                 var eventLogJson = peerConnectionObserver.Call<string>("getEventLogJson");
                 if (string.IsNullOrEmpty(eventLogJson))
                 {
@@ -281,8 +318,11 @@ namespace MediaProjection.WebRtc
                 }
 
                 var eventLog = JsonUtility.FromJson<EventLog>(eventLogJson);
-                foreach (var entry in eventLog.dataList)
+                var dataList = eventLog.dataList.ToArray();
+                foreach (var entry in dataList)
                 {
+                    Debug.Log("Event Log: " + entry.key + " - " + entry.value);
+
                     switch (entry.key)
                     {
                         case "onSignalingChange":
@@ -323,17 +363,17 @@ namespace MediaProjection.WebRtc
                                 OnIceCandidate?.Invoke(iceCandidateData);
                                 break;
                             }
-                        case "onNegotiationNeeded":
+                        case "onRenegotiationNeeded":
                             {
-                                OnNegotiationNeeded?.Invoke();
+                                OnRenegotiationNeeded?.Invoke();
                                 break;
                             }
                     }                    
                 }
             }
 
-
-            sdpObservers.ForEach(observer => observer.ObserveState());
+            var sdpObserverCopy = sdpObservers.ToList();
+            sdpObserverCopy.ForEach(observer => observer.ObserveState());
         }
 
         static string ConvertDictionaryToJson(Dictionary<string, string> dict)
@@ -390,6 +430,14 @@ namespace MediaProjection.WebRtc
             HAVE_REMOTE_PRANSWER,
             CLOSED
         }
+
+        public enum SessionDescriptionType
+        {
+            OFFER,
+            PRANSWER,
+            ANSWER,
+            ROLLBACK
+        }
     }
 
     public class SdpObserver : IDisposable
@@ -411,7 +459,6 @@ namespace MediaProjection.WebRtc
 
         public void Dispose()
         {
-            sdpObserverObject?.Call("dispose");
             sdpObserverObject?.Dispose();
             sdpObserverObject = null;
 
@@ -428,7 +475,8 @@ namespace MediaProjection.WebRtc
             }
 
             var eventLog = JsonUtility.FromJson<EventLog>(eventLogJson);
-            foreach (var entry in eventLog.dataList)
+            var dataList = eventLog.dataList.ToArray();
+            foreach (var entry in dataList)
             {
                 switch (entry.key)
                 {
@@ -470,7 +518,7 @@ namespace MediaProjection.WebRtc
         public string adapterType;
         public string sdp;
         public string sdpMid;
-        public string sdpMLineIndex;
+        public int sdpMLineIndex;
         public string serverUrl;
     }
 
