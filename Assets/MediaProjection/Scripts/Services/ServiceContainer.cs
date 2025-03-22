@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace MediaProjection.Services
 {
-    class ServiceContainer : MonoBehaviour
+    public class ServiceContainer : MonoBehaviour
     {
         [SerializeField] private bool enableImageProcessing = true;
         [SerializeField] private bool enableWebRtc = false;
@@ -32,10 +32,10 @@ namespace MediaProjection.Services
             }
         }
 
-        internal AndroidJavaObject? MediaProjectionManager => mediaProjectionManager;
-        internal event Action<AndroidJavaObject?>? MediaProjectionManagerChanged;
+        public AndroidJavaObject? MediaProjectionManager => mediaProjectionManager;
+        public event Action<AndroidJavaObject?>? MediaProjectionManagerChanged;
 
-        public IBarcodeReaderService GetBarcodeReaderService(
+        internal IBarcodeReaderService GetBarcodeReaderService(
             IEnumerable<Models.BarcodeFormat> possibleFormats,
             bool cropRequired,
             RectInt cropRange,
@@ -47,7 +47,7 @@ namespace MediaProjection.Services
             return barcodeReaderService;
         }
 
-        public IMultipleBarcodeReaderService GetMlKitBarcodeReaderService(IEnumerable<Models.MlKitBarcodeFormat> possibleFormats)
+        internal IMultipleBarcodeReaderService GetMlKitBarcodeReaderService(IEnumerable<Models.MlKitBarcodeFormat> possibleFormats)
         {
             var mlKitBarcodeReaderService = new MlKitBarcodeReaderService(imageProcessManager, possibleFormats);
             mlKitBarcodeReaderServices.Add(mlKitBarcodeReaderService);
