@@ -7,6 +7,18 @@
 3. **Save Screen Captures**: Save the captured screen to storage.  
 4. 🚀 **WebRTC Support (NEW in v1.3.0!)** 🚀 – Stream captured screen content in **real-time** using WebRTC for seamless remote viewing and communication.  
 
+---
+
+### **🎉 New Passthrough Camera API Now Available 🚀**
+
+Meta has recently **introduced** the **Quest Passthrough Camera API**, which allows third-party developers to access the **passthrough camera feed**, a feature that was previously restricted due to privacy concerns.
+
+This new API brings a significant relief, as it means we are finally **free from the restrictions and workarounds** that had to be employed before. No longer will developers need to navigate around limitations to achieve passthrough camera functionality.
+
+As a result, this repository will now be **archived** and preserved for **reference purposes only**. Moving forward, the **official Passthrough Camera API** will be the recommended approach for all passthrough camera development.
+
+---
+
 ## YouTube
 <div align="left">
   <a href="https://www.youtube.com/watch?v=cM_gVy-KmuM"><img src="https://img.youtube.com/vi/cM_gVy-KmuM/0.jpg" alt="IMAGE ALT TEXT"></a>
